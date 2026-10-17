@@ -1,277 +1,311 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مؤشر أذون الخزانة المصرية</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نتائج مزادات أذون الخزانة المصرية | جروب عملاء البنوك المصرية</title>
+  <!-- Google Fonts: Cairo -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-navy: #0B1B3D;
+      --secondary-navy: #162B56;
+      --accent-gold: #D4AF37;
+      --light-gold: #F3E5AB;
+      --bg-light: #F4F6F9;
+      --text-dark: #1E293B;
+      --text-muted: #64748B;
+      --card-shadow: 0 10px 25px -5px rgba(11, 27, 61, 0.1);
+    }
 
-        html, body {
-            min-height: 100vh;
-            background-color: #000000;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+    }
 
-        /* حاوية محكومة بدون أي ارتفاعات زائدة أو فراغات ميتة */
-        .app-frame {
-            width: 100%;
-            max-width: 420px;
-            height: auto;
-            background-color: #121212;
-            border: 2px solid #d4af37;
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
-        }
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      padding-bottom: 40px;
+    }
 
-        .header-title {
-            text-align: center;
-            color: #ffd700;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
+    header {
+      background: linear-gradient(135deg, var(--primary-navy), var(--secondary-navy));
+      color: #fff;
+      padding: 25px 15px;
+      text-align: center;
+      border-bottom: 4px solid var(--accent-gold);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
 
-        .sub-header {
-            text-align: center;
-            color: #cccccc;
-            font-size: 11px;
-            margin-bottom: 12px;
-        }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      margin-bottom: 5px;
+    }
 
-        .tabs-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
-        }
+    header p {
+      font-size: 0.95rem;
+      color: #E2E8F0;
+    }
 
-        .tab-btn {
-            background: #1e1e1e;
-            border: 1px solid #d4af37;
-            color: #ffd700;
-            padding: 8px 4px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-        }
+    .container {
+      max-width: 900px;
+      margin: 25px auto;
+      padding: 0 15px;
+    }
 
-        .tab-btn.active {
-            background: #d4af37;
-            color: #000000;
-        }
+    .status-bar {
+      background: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-right: 4px solid var(--accent-gold);
+    }
 
-        .current-page-badge {
-            background: #1a1a1a;
-            border-right: 4px solid #d4af37;
-            padding: 6px 10px;
-            font-size: 12px;
-            color: #ffffff;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+    .category-card {
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
 
-        /* ضبط الارتفاع ليعرض 3 إلى 4 سطور فقط ثم السكرول */
-        .table-container {
-            width: 100%;
-            height: 160px;
-            overflow-y: auto;
-            border-radius: 10px;
-            border: 1px solid #d4af37;
-            background-color: #181818;
-            margin-bottom: 14px;
-        }
+    .category-header {
+      background: var(--primary-navy);
+      color: var(--accent-gold);
+      padding: 14px 20px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-        }
+    .category-header span {
+      background: var(--accent-gold);
+      color: var(--primary-navy);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
 
-        th {
-            position: sticky;
-            top: 0;
-            background-color: #000080;
-            color: #ffffff;
-            padding: 8px 4px;
-            font-size: 11px;
-            border-bottom: 1px solid #d4af37;
-            z-index: 2;
-        }
+    .table-container {
+      overflow-x: auto;
+    }
 
-        td {
-            padding: 8px 4px;
-            border-bottom: 1px solid #282828;
-            color: #ffffff;
-            font-size: 11px;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+    }
 
-        .yield-badge {
-            color: #4caf50;
-            font-weight: bold;
-        }
+    th {
+      background: #F8FAFC;
+      color: var(--secondary-navy);
+      padding: 12px 15px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-bottom: 2px solid #E2E8F0;
+    }
 
-        .no-data {
-            color: #aaaaaa;
-            padding: 30px 10px;
-            font-size: 12px;
-        }
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #EDF2F7;
+      font-size: 0.9rem;
+    }
 
-        .admob-container {
-            width: 100%;
-            height: 50px;
-            background-color: #1c1c1c;
-            border: 1px dashed #d4af37;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #888888;
-            font-size: 11px;
-            margin-bottom: 12px;
-        }
+    tbody tr:nth-child(even) {
+      background-color: #F8FAFC;
+    }
 
-        .footer-branding {
-            text-align: center;
-            padding-top: 10px;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-        }
+    tbody tr:first-child {
+      background-color: rgba(212, 175, 55, 0.08);
+      font-weight: 700;
+    }
 
-        .footer-group-name {
-            color: #ffd700;
-            font-size: 14px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 2px;
-        }
+    .yield-badge {
+      color: #065F46;
+      background: #D1FAE5;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+      display: inline-block;
+    }
 
-        .footer-developer {
-            color: #d4af37;
-            font-size: 11px;
-        }
-    </style>
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 15px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 1.1rem;
+      color: var(--primary-navy);
+      font-weight: 700;
+    }
+  </style>
 </head>
 <body>
 
-<div class="app-frame">
-    <div class="header-title">مؤشر أذون الخزانة</div>
-    <div class="sub-header">نتائج عطاءات أذون الخزانة الرسمية (أحدث 52 أسبوعاً)</div>
+  <header>
+    <h1>نتائج مزادات أذون الخزانة المصرية</h1>
+    <p>إعداد أ/ طارق متولى — جروب عملاء البنوك المصرية</p>
+  </header>
 
-    <div class="tabs-grid">
-        <button class="tab-btn active" onclick="switchTab('91', this)">91 يوم</button>
-        <button class="tab-btn" onclick="switchTab('182', this)">182 يوم</button>
-        <button class="tab-btn" onclick="switchTab('273', this)">273 يوم</button>
-        <button class="tab-btn" onclick="switchTab('364', this)">364 يوم</button>
-        <button class="tab-btn" onclick="switchTab('357', this)">357 يوم</button>
-        <button class="tab-btn" onclick="switchTab('other', this)">مدد أخرى</button>
+  <div class="container">
+    <div class="status-bar">
+      <span>تحديث مباشر من نموذج البيانات الرسمي</span>
+      <span id="last-update">جاري التحميل...</span>
     </div>
 
-    <div class="current-page-badge" id="pageTitle">سجل نتائج أجل 91 يوم</div>
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>تاريخ الجلسة</th>
-                    <th>تاريخ الإصدار</th>
-                    <th>تاريخ الاستحقاق</th>
-                    <th>متوسط العائد %</th>
-                </tr>
-            </thead>
-            <tbody id="tableData">
-                <tr>
-                    <td colspan="4" class="no-data">لا توجد بيانات مسجلة حالياً لهذا الأجل</td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="content" class="loading">
+      جاري تحميل أحدث البيانات والنتائج...
     </div>
+  </div>
 
-    <div class="admob-container">
-        <span>مساحة إعلان Google AdMob (320x50)</span>
-    </div>
+  <footer>
+    حقوق الطبع والنشر محفوظة © جروب عملاء البنوك المصرية
+  </footer>
 
-    <div class="footer-branding">
-        <div class="footer-group-name">
-            🛡️ جروب عملاء البنوك المصرية
-        </div>
-        <div class="footer-developer">
-            Developed by Tarek Metwally
-        </div>
-    </div>
-</div>
+  <script>
+    // رابط Google Sheets المنشور بصيغة CSV الخاص بك
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4a-R29quJvLHLEtE3D_jFqxDyxN5VZclwEx9gDi5LDHkOKJw_vlo7nrplDsGpwYHZIfftTTWN_I0/pub?output=csv";
 
-<script>
-    const MAX_ROWS = 52;
-    let mockData = { '91': [], '182': [], '273': [], '364': [], '357': [], 'other': [] };
-    let currentKey = '91';
-
-    async function loadExternalData() {
-        try {
-            const response = await fetch('./data.json?cache=' + Date.now());
-            if (response.ok) {
-                mockData = await response.json();
-            }
-        } catch (e) {}
-        loadData(currentKey);
-    }
-
-    function loadData(key) {
-        currentKey = key;
-        const tbody = document.getElementById('tableData');
-        tbody.innerHTML = '';
-
-        const titleMap = {
-            '91': 'سجل نتائج أجل 91 يوم',
-            '182': 'سجل نتائج أجل 182 يوم',
-            '273': 'سجل نتائج أجل 273 يوم',
-            '364': 'سجل نتائج أجل 364 يوم',
-            '357': 'سجل نتائج أجل 357 يوم',
-            'other': 'سجل نتائج مدد أخرى'
-        };
-
-        document.getElementById('pageTitle').innerText = titleMap[key] || '';
-        let list = mockData[key] || [];
-
-        if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="no-data">لا توجد بيانات مسجلة حالياً لهذا الأجل</td></tr>`;
-            return;
+    // تحويل نص الـ CSV إلى مصفوفة بيانات
+    function parseCSV(text) {
+      const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+      if (lines.length < 2) return [];
+      
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        // التعامل مع الفواصل داخل السطور
+        const values = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(val => val.replace(/^"\vert{}"$/g, '').trim());
+        if (values.length >= 6) {
+          rows.push({
+            timestamp: values[0],
+            term: values[1],
+            session: values[2],
+            issue: values[3],
+            maturity: values[4],
+            yield: values[5]
+          });
         }
+      }
+      return rows;
+    }
 
-        list.slice(0, MAX_ROWS).forEach(row => {
-            tbody.innerHTML += `
-                <tr>
-                    <td style="color: #ffd700; font-weight: bold;">${row.session}</td>
-                    <td>${row.issue}</td>
-                    <td>${row.maturity}</td>
-                    <td class="yield-badge">${row.yield}</td>
-                </tr>
+    // بناء الواجهة من البيانات
+    function renderData(data) {
+      const contentDiv = document.getElementById('content');
+      if (!data || data.length === 0) {
+        contentDiv.innerHTML = '<div class="loading">لا توجد بيانات مسجلة حالياً حتى الآن.</div>';
+        return;
+      }
+
+      // تجميع النتائج حسب الأجل
+      const categories = {
+        '91': [],
+        '182': [],
+        '273': [],
+        '364': [],
+        '357': [],
+        'other': []
+      };
+
+      // إدراج البيانات (الأحدث أولاً)
+      data.reverse().forEach(item => {
+        const termKey = item.term;
+        if (categories[termKey]) {
+          categories[termKey].push(item);
+        } else {
+          categories['other'].push(item);
+        }
+      });
+
+      let html = '';
+
+      const termTitles = {
+        '91': 'أجل 91 يوم (3 أشهر)',
+        '182': 'أجل 182 يوم (6 أشهر)',
+        '273': 'أجل 273 يوم (9 أشهر)',
+        '364': 'أجل 364 يوم (سنة)',
+        '357': 'أجل 357 يوم',
+        'other': 'مدد واستحقاقات أخرى'
+      };
+
+      Object.keys(categories).forEach(key => {
+        const items = categories[key];
+        if (items.length > 0) {
+          html += `
+            <div class="category-card">
+              <div class="category-header">
+                <div>${termTitles[key] || key}</div>
+                <span>${items.length} جلسة</span>
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>تاريخ الجلسة</th>
+                      <th>تاريخ الإصدار</th>
+                      <th>تاريخ الاستحقاق</th>
+                      <th>متوسط العائد</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+          `;
+
+          items.forEach((row, index) => {
+            html += `
+              <tr>
+                <td>${row.session} ${index === 0 ? '<small style="color:var(--accent-gold); font-weight:bold;">(الأحدث)</small>' : ''}</td>
+                <td>${row.issue}</td>
+                <td>${row.maturity}</td>
+                <td><span class="yield-badge">${row.yield}</span></td>
+              </tr>
             `;
-        });
+          });
+
+          html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      contentDiv.innerHTML = html;
+      document.getElementById('last-update').innerText = 'تم التحديث: ' + new Date().toLocaleTimeString('ar-EG');
     }
 
-    function switchTab(key, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        loadData(key);
-    }
-
-    loadExternalData();
-</script>
-
+    // جلب البيانات من Google Sheets
+    fetch(csvUrl)
+      .then(response => response.text())
+      .then(csvText => {
+        const parsedData = parseCSV(csvText);
+        renderData(parsedData);
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('content').innerHTML = '<div class="loading" style="color:red;">حدث خطأ أثناء جلب البيانات، يرجى المحاولة لاحقاً.</div>';
+      });
+  </script>
 </body>
 </html>
