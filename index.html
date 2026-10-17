@@ -255,7 +255,7 @@
         '357': 'سجل نتائج أجل 357 يوم',
         'other': 'سجل نتائج المدد الأخرى'
       };
-      document.getElementById('section-headerinnerText' in document.getElementById('section-header') ? 'section-header' : 'section-header').innerText = titles[term] || `سجل نتائج أجل ${term} يوم`;
+      document.getElementById('section-header').innerText = titles[term] || `سجل نتائج أجل ${term} يوم`;
 
       renderTable();
     }
