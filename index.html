@@ -184,41 +184,43 @@
   </footer>
 
   <script>
-    // رابط Google Sheets المنشور بصيغة CSV الخاص بك
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4a-R29quJvLHLEtE3D_jFqxDyxN5VZclwEx9gDi5LDHkOKJw_vlo7nrplDsGpwYHZIfftTTWN_I0/pub?output=csv";
 
-    // تحويل نص الـ CSV إلى مصفوفة بيانات
     function parseCSV(text) {
       const lines = text.split('\n').map(line => line.trim()).filter(line => line);
       if (lines.length < 2) return [];
       
       const rows = [];
+      // نبدأ من 1 لتخطي سطر العناوين الرئيسي في الشيت
       for (let i = 1; i < lines.length; i++) {
-        // التعامل مع الفواصل داخل السطور
         const values = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(val => val.replace(/^"\vert{}"$/g, '').trim());
+        
+        // التحقق من أن السطر يحتوي على بيانات حقيقية وليست حروف برمجية أو أعمدة ناقصة
         if (values.length >= 6) {
-          rows.push({
-            timestamp: values[0],
-            term: values[1],
-            session: values[2],
-            issue: values[3],
-            maturity: values[4],
-            yield: values[5]
-          });
+          const termVal = values[1];
+          // التأكد أن قيمة الأجل رقمية وليست نصوص غريبة
+          if (['91', '182', '273', '364', '357', 'other'].includes(termVal) || !isNaN(termVal)) {
+            rows.push({
+              timestamp: values[0],
+              term: termVal,
+              session: values[2],
+              issue: values[3],
+              maturity: values[4],
+              yield: values[5]
+            });
+          }
         }
       }
       return rows;
     }
 
-    // بناء الواجهة من البيانات
     function renderData(data) {
       const contentDiv = document.getElementById('content');
       if (!data || data.length === 0) {
-        contentDiv.innerHTML = '<div class="loading">لا توجد بيانات مسجلة حالياً حتى الآن.</div>';
+        contentDiv.innerHTML = '<div class="loading">لا توجد بيانات مسجلة مطابقة حالياً. يرجى إرسال تجربة عبر نموذج جوجل.</div>';
         return;
       }
 
-      // تجميع النتائج حسب الأجل
       const categories = {
         '91': [],
         '182': [],
@@ -228,7 +230,6 @@
         'other': []
       };
 
-      // إدراج البيانات (الأحدث أولاً)
       data.reverse().forEach(item => {
         const termKey = item.term;
         if (categories[termKey]) {
@@ -239,7 +240,6 @@
       });
 
       let html = '';
-
       const termTitles = {
         '91': 'أجل 91 يوم (3 أشهر)',
         '182': 'أجل 182 يوم (6 أشهر)',
@@ -255,7 +255,7 @@
           html += `
             <div class="category-card">
               <div class="category-header">
-                <div>${termTitles[key] || key}</div>
+                <div>${termTitles[key] || ('أجل ' + key + ' يوم')}</div>
                 <span>${items.length} جلسة</span>
               </div>
               <div class="table-container">
@@ -295,7 +295,6 @@
       document.getElementById('last-update').innerText = 'تم التحديث: ' + new Date().toLocaleTimeString('ar-EG');
     }
 
-    // جلب البيانات من Google Sheets
     fetch(csvUrl)
       .then(response => response.text())
       .then(csvText => {
