@@ -156,12 +156,12 @@
 
     <!-- أزرار اختيار الأجل -->
     <div class="terms-grid">
-      <button class="term-btn" onclick="selectTerm('91')">91 يوم</button>
-      <button class="term-btn active" id="btn-182" onclick="selectTerm('182')">182 يوم</button>
-      <button class="term-btn" onclick="selectTerm('273')">273 يوم</button>
-      <button class="term-btn" onclick="selectTerm('364')">364 يوم</button>
-      <button class="term-btn" onclick="selectTerm('357')">357 يوم</button>
-      <button class="term-btn" onclick="selectTerm('other')">مدد أخرى</button>
+      <button class="term-btn" onclick="selectTerm('91', event)">91 يوم</button>
+      <button class="term-btn active" id="btn-182" onclick="selectTerm('182', event)">182 يوم</button>
+      <button class="term-btn" onclick="selectTerm('273', event)">273 يوم</button>
+      <button class="term-btn" onclick="selectTerm('364', event)">364 يوم</button>
+      <button class="term-btn" onclick="selectTerm('357', event)">357 يوم</button>
+      <button class="term-btn" onclick="selectTerm('other', event)">مدد أخرى</button>
     </div>
 
     <!-- عنوان الأجل المحدد -->
@@ -237,12 +237,14 @@
     }
 
     // اختيار الأجل وتحديث الجدول والأزرار
-    function selectTerm(term) {
+    function selectTerm(term, evt) {
       currentTerm = term;
       
       // تحديث حالة الأزرار
       document.querySelectorAll('.term-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      if(evt && evt.target) {
+        evt.target.classList.add('active');
+      }
 
       // تحديث العنوان
       const titles = {
@@ -253,7 +255,7 @@
         '357': 'سجل نتائج أجل 357 يوم',
         'other': 'سجل نتائج المدد الأخرى'
       };
-      document.getElementById('section-header').innerText = titles[term] || `سجل نتائج أجل ${term} يوم`;
+      document.getElementById('section-headerinnerText' in document.getElementById('section-header') ? 'section-header' : 'section-header').innerText = titles[term] || `سجل نتائج أجل ${term} يوم`;
 
       renderTable();
     }
@@ -270,16 +272,15 @@
 
       let html = '';
       filtered.forEach(row => {
-        // إضافة نسبة % تلقائياً إذا لم تكن موجودة
         let yieldStr = row.yield;
-        if (!yieldStr.includes('%')) yieldStr += '%';
+        if (yieldStr && !yieldStr.includes('%')) yieldStr += '%';
 
         html += `
           <tr>
-            <td class="session-date">${row.session}</td>
-            <td>${row.issue}</td>
-            <td>${row.maturity}</td>
-            <td class="yield-val">${yieldStr}</td>
+            <td class="session-date">${row.session || ''}</td>
+            <td>${row.issue || ''}</td>
+            <td>${row.maturity || ''}</td>
+            <td class="yield-val">${yieldStr || ''}</td>
           </tr>
         `;
       });
