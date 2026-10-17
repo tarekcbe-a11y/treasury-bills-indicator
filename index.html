@@ -13,59 +13,58 @@
         }
 
         html, body {
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
             background-color: #000000;
             color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 8px;
+            padding: 12px;
         }
 
         .app-frame {
             width: 100%;
-            max-width: 380px;
-            height: 560px;
+            max-width: 480px; /* زيادة عرض التطبيق ليتنسق تماماً مع شاشات الموبايل */
+            min-height: 90vh;
             background-color: #121212;
             border: 2px solid #d4af37;
             border-radius: 20px;
-            padding: 12px 10px 8px 10px;
+            padding: 16px 14px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
         }
 
         .header-title {
             text-align: center;
             color: #ffd700;
-            font-size: 17px;
+            font-size: 20px;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .sub-header {
             text-align: center;
             color: #cccccc;
-            font-size: 10.5px;
-            margin-bottom: 8px;
+            font-size: 11.5px;
+            margin-bottom: 12px;
         }
 
         .tabs-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .tab-btn {
             background: #1e1e1e;
             border: 1px solid #d4af37;
             color: #ffd700;
-            padding: 5px 2px;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 8px 4px;
+            border-radius: 8px;
+            font-size: 12.5px;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
@@ -78,21 +77,23 @@
 
         .current-page-badge {
             background: #1a1a1a;
-            border-right: 3px solid #d4af37;
-            padding: 4px 8px;
-            font-size: 11px;
+            border-right: 4px solid #d4af37;
+            padding: 6px 10px;
+            font-size: 12px;
             color: #ffffff;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
         }
 
+        /* توسيع حاوية الجدول للاستفادة من المساحة وتتسع لعدد أسطر ممتاز */
         .table-container {
             width: 100%;
-            max-height: 180px;
+            height: 320px; /* زيادة الارتفاع ليتسع لعدة أسطر بوضوح */
             overflow-y: auto;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid #d4af37;
             background-color: #181818;
+            margin-bottom: 12px;
         }
 
         table {
@@ -106,17 +107,17 @@
             top: 0;
             background-color: #000080;
             color: #ffffff;
-            padding: 7px 2px;
-            font-size: 10px;
+            padding: 10px 4px;
+            font-size: 11.5px;
             border-bottom: 1px solid #d4af37;
             z-index: 2;
         }
 
         td {
-            padding: 6px 2px;
+            padding: 9px 4px;
             border-bottom: 1px solid #282828;
             color: #ffffff;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         .yield-badge {
@@ -126,13 +127,13 @@
 
         .no-data {
             color: #aaaaaa;
-            padding: 15px;
-            font-size: 11px;
+            padding: 40px 10px;
+            font-size: 12px;
         }
 
         .admob-container {
             width: 100%;
-            height: 50px;
+            height: 52px;
             background-color: #1c1c1c;
             border: 1px dashed #d4af37;
             border-radius: 8px;
@@ -140,30 +141,30 @@
             justify-content: center;
             align-items: center;
             color: #888888;
-            font-size: 11px;
-            margin: 6px 0;
+            font-size: 11.5px;
+            margin-bottom: 10px;
         }
 
         .footer-branding {
             text-align: center;
-            padding-top: 4px;
+            padding-top: 8px;
             border-top: 1px solid rgba(212, 175, 55, 0.2);
         }
 
         .footer-group-name {
             color: #ffd700;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
 
         .footer-developer {
             color: #d4af37;
-            font-size: 10.5px;
+            font-size: 11px;
         }
     </style>
 </head>
@@ -204,16 +205,18 @@
         </div>
     </div>
 
-    <div class="admob-container">
-        <span>مساحة إعلان Google AdMob (320x50)</span>
-    </div>
-
-    <div class="footer-branding">
-        <div class="footer-group-name">
-            🛡️ جروب عملاء البنوك المصرية
+    <div>
+        <div class="admob-container">
+            <span>مساحة إعلان Google AdMob (320x50)</span>
         </div>
-        <div class="footer-developer">
-            Developed by Tarek Metwally
+
+        <div class="footer-branding">
+            <div class="footer-group-name">
+                🛡️ جروب عملاء البنوك المصرية
+            </div>
+            <div class="footer-developer">
+                Developed by Tarek Metwally
+            </div>
         </div>
     </div>
 </div>
