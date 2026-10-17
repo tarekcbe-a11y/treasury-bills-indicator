@@ -21,7 +21,6 @@
             justify-content: center;
             align-items: center;
             padding: 8px;
-            touch-action: none;
         }
 
         .app-frame {
@@ -36,7 +35,6 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-            touch-action: auto;
         }
 
         .header-title {
@@ -75,4 +73,208 @@
 
         .tab-btn.active {
             background: #d4af37;
-            color: #0000
+            color: #000000;
+        }
+
+        .current-page-badge {
+            background: #1a1a1a;
+            border-right: 3px solid #d4af37;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: #ffffff;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .table-container {
+            width: 100%;
+            max-height: 180px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid #d4af37;
+            background-color: #181818;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background-color: #000080;
+            color: #ffffff;
+            padding: 7px 2px;
+            font-size: 10px;
+            border-bottom: 1px solid #d4af37;
+            z-index: 2;
+        }
+
+        td {
+            padding: 6px 2px;
+            border-bottom: 1px solid #282828;
+            color: #ffffff;
+            font-size: 10px;
+        }
+
+        .yield-badge {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .no-data {
+            color: #aaaaaa;
+            padding: 15px;
+            font-size: 11px;
+        }
+
+        .admob-container {
+            width: 100%;
+            height: 50px;
+            background-color: #1c1c1c;
+            border: 1px dashed #d4af37;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #888888;
+            font-size: 11px;
+            margin: 6px 0;
+        }
+
+        .footer-branding {
+            text-align: center;
+            padding-top: 4px;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .footer-group-name {
+            color: #ffd700;
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .footer-developer {
+            color: #d4af37;
+            font-size: 10.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-frame">
+    <div>
+        <div class="header-title">مؤشر أذون الخزانة</div>
+        <div class="sub-header">نتائج عطاءات أذون الخزانة الرسمية (أحدث 52 أسبوعاً)</div>
+
+        <div class="tabs-grid">
+            <button class="tab-btn active" onclick="switchTab('91', this)">91 يوم</button>
+            <button class="tab-btn" onclick="switchTab('182', this)">182 يوم</button>
+            <button class="tab-btn" onclick="switchTab('273', this)">273 يوم</button>
+            <button class="tab-btn" onclick="switchTab('364', this)">364 يوم</button>
+            <button class="tab-btn" onclick="switchTab('357', this)">357 يوم</button>
+            <button class="tab-btn" onclick="switchTab('other', this)">مدد أخرى</button>
+        </div>
+
+        <div class="current-page-badge" id="pageTitle">سجل نتائج أجل 91 يوم</div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>تاريخ الجلسة</th>
+                        <th>تاريخ الإصدار</th>
+                        <th>تاريخ الاستحقاق</th>
+                        <th>متوسط العائد %</th>
+                    </tr>
+                </thead>
+                <tbody id="tableData">
+                    <tr>
+                        <td colspan="4" class="no-data">لا توجد بيانات مسجلة حالياً لهذا الأجل</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admob-container">
+        <span>مساحة إعلان Google AdMob (320x50)</span>
+    </div>
+
+    <div class="footer-branding">
+        <div class="footer-group-name">
+            🛡️ جروب عملاء البنوك المصرية
+        </div>
+        <div class="footer-developer">
+            Developed by Tarek Metwally
+        </div>
+    </div>
+</div>
+
+<script>
+    const MAX_ROWS = 52;
+    let mockData = { '91': [], '182': [], '273': [], '364': [], '357': [], 'other': [] };
+    let currentKey = '91';
+
+    async function loadExternalData() {
+        try {
+            const response = await fetch('./data.json?cache=' + Date.now());
+            if (response.ok) {
+                mockData = await response.json();
+            }
+        } catch (e) {}
+        loadData(currentKey);
+    }
+
+    function loadData(key) {
+        currentKey = key;
+        const tbody = document.getElementById('tableData');
+        tbody.innerHTML = '';
+
+        const titleMap = {
+            '91': 'سجل نتائج أجل 91 يوم',
+            '182': 'سجل نتائج أجل 182 يوم',
+            '273': 'سجل نتائج أجل 273 يوم',
+            '364': 'سجل نتائج أجل 364 يوم',
+            '357': 'سجل نتائج أجل 357 يوم',
+            'other': 'سجل نتائج مدد أخرى'
+        };
+
+        document.getElementById('pageTitle').innerText = titleMap[key] || '';
+        let list = mockData[key] || [];
+
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="no-data">لا توجد بيانات مسجلة حالياً لهذا الأجل</td></tr>`;
+            return;
+        }
+
+        list.slice(0, MAX_ROWS).forEach(row => {
+            tbody.innerHTML += `
+                <tr>
+                    <td style="color: #ffd700; font-weight: bold;">${row.session}</td>
+                    <td>${row.issue}</td>
+                    <td>${row.maturity}</td>
+                    <td class="yield-badge">${row.yield}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function switchTab(key, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadData(key);
+    }
+
+    loadExternalData();
+</script>
+
+</body>
+</html>
