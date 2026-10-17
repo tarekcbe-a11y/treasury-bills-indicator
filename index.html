@@ -22,17 +22,15 @@
             padding: 12px;
         }
 
+        /* حاوية محكومة بدون أي ارتفاعات زائدة أو فراغات ميتة */
         .app-frame {
             width: 100%;
-            max-width: 480px; /* زيادة عرض التطبيق ليتنسق تماماً مع شاشات الموبايل */
-            min-height: 90vh;
+            max-width: 420px;
+            height: auto;
             background-color: #121212;
             border: 2px solid #d4af37;
             border-radius: 20px;
-            padding: 16px 14px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            padding: 16px;
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
         }
 
@@ -47,7 +45,7 @@
         .sub-header {
             text-align: center;
             color: #cccccc;
-            font-size: 11.5px;
+            font-size: 11px;
             margin-bottom: 12px;
         }
 
@@ -64,7 +62,7 @@
             color: #ffd700;
             padding: 8px 4px;
             border-radius: 8px;
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
@@ -85,15 +83,15 @@
             margin-bottom: 10px;
         }
 
-        /* توسيع حاوية الجدول للاستفادة من المساحة وتتسع لعدد أسطر ممتاز */
+        /* ضبط الارتفاع ليعرض 3 إلى 4 سطور فقط ثم السكرول */
         .table-container {
             width: 100%;
-            height: 320px; /* زيادة الارتفاع ليتسع لعدة أسطر بوضوح */
+            height: 160px;
             overflow-y: auto;
             border-radius: 10px;
             border: 1px solid #d4af37;
             background-color: #181818;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         table {
@@ -107,14 +105,14 @@
             top: 0;
             background-color: #000080;
             color: #ffffff;
-            padding: 10px 4px;
-            font-size: 11.5px;
+            padding: 8px 4px;
+            font-size: 11px;
             border-bottom: 1px solid #d4af37;
             z-index: 2;
         }
 
         td {
-            padding: 9px 4px;
+            padding: 8px 4px;
             border-bottom: 1px solid #282828;
             color: #ffffff;
             font-size: 11px;
@@ -127,13 +125,13 @@
 
         .no-data {
             color: #aaaaaa;
-            padding: 40px 10px;
+            padding: 30px 10px;
             font-size: 12px;
         }
 
         .admob-container {
             width: 100%;
-            height: 52px;
+            height: 50px;
             background-color: #1c1c1c;
             border: 1px dashed #d4af37;
             border-radius: 8px;
@@ -141,13 +139,13 @@
             justify-content: center;
             align-items: center;
             color: #888888;
-            font-size: 11.5px;
-            margin-bottom: 10px;
+            font-size: 11px;
+            margin-bottom: 12px;
         }
 
         .footer-branding {
             text-align: center;
-            padding-top: 8px;
+            padding-top: 10px;
             border-top: 1px solid rgba(212, 175, 55, 0.2);
         }
 
@@ -159,7 +157,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .footer-developer {
@@ -171,52 +169,48 @@
 <body>
 
 <div class="app-frame">
-    <div>
-        <div class="header-title">مؤشر أذون الخزانة</div>
-        <div class="sub-header">نتائج عطاءات أذون الخزانة الرسمية (أحدث 52 أسبوعاً)</div>
+    <div class="header-title">مؤشر أذون الخزانة</div>
+    <div class="sub-header">نتائج عطاءات أذون الخزانة الرسمية (أحدث 52 أسبوعاً)</div>
 
-        <div class="tabs-grid">
-            <button class="tab-btn active" onclick="switchTab('91', this)">91 يوم</button>
-            <button class="tab-btn" onclick="switchTab('182', this)">182 يوم</button>
-            <button class="tab-btn" onclick="switchTab('273', this)">273 يوم</button>
-            <button class="tab-btn" onclick="switchTab('364', this)">364 يوم</button>
-            <button class="tab-btn" onclick="switchTab('357', this)">357 يوم</button>
-            <button class="tab-btn" onclick="switchTab('other', this)">مدد أخرى</button>
-        </div>
-
-        <div class="current-page-badge" id="pageTitle">سجل نتائج أجل 91 يوم</div>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>تاريخ الجلسة</th>
-                        <th>تاريخ الإصدار</th>
-                        <th>تاريخ الاستحقاق</th>
-                        <th>متوسط العائد %</th>
-                    </tr>
-                </thead>
-                <tbody id="tableData">
-                    <tr>
-                        <td colspan="4" class="no-data">لا توجد بيانات مسجلة حالياً لهذا الأجل</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="tabs-grid">
+        <button class="tab-btn active" onclick="switchTab('91', this)">91 يوم</button>
+        <button class="tab-btn" onclick="switchTab('182', this)">182 يوم</button>
+        <button class="tab-btn" onclick="switchTab('273', this)">273 يوم</button>
+        <button class="tab-btn" onclick="switchTab('364', this)">364 يوم</button>
+        <button class="tab-btn" onclick="switchTab('357', this)">357 يوم</button>
+        <button class="tab-btn" onclick="switchTab('other', this)">مدد أخرى</button>
     </div>
 
-    <div>
-        <div class="admob-container">
-            <span>مساحة إعلان Google AdMob (320x50)</span>
-        </div>
+    <div class="current-page-badge" id="pageTitle">سجل نتائج أجل 91 يوم</div>
 
-        <div class="footer-branding">
-            <div class="footer-group-name">
-                🛡️ جروب عملاء البنوك المصرية
-            </div>
-            <div class="footer-developer">
-                Developed by Tarek Metwally
-            </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>تاريخ الجلسة</th>
+                    <th>تاريخ الإصدار</th>
+                    <th>تاريخ الاستحقاق</th>
+                    <th>متوسط العائد %</th>
+                </tr>
+            </thead>
+            <tbody id="tableData">
+                <tr>
+                    <td colspan="4" class="no-data">لا توجد بيانات مسجلة حالياً لهذا الأجل</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="admob-container">
+        <span>مساحة إعلان Google AdMob (320x50)</span>
+    </div>
+
+    <div class="footer-branding">
+        <div class="footer-group-name">
+            🛡️ جروب عملاء البنوك المصرية
+        </div>
+        <div class="footer-developer">
+            Developed by Tarek Metwally
         </div>
     </div>
 </div>
