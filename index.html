@@ -217,7 +217,7 @@
         });
     }
 
-    // تحويل CSV وتحليل الأعمدة بدقة
+    // تحويل CSV
     function parseCSV(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const rows = [];
@@ -225,21 +225,20 @@
       for (let i = 1; i < lines.length; i++) {
         const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
         
-        if (val.length >= 6) {
-          const cleanTerm = val[1].replace(/[^0-9]/g, '');
+        if (val.length >= 2) {
           rows.push({
-            term: cleanTerm || val[1],
-            session: val[2],
-            issue: val[3],
-            maturity: val[4],
-            yield: val[5]
+            rawTerm: val[1] || '',
+            session: val[2] || val[1] || '',
+            issue: val[3] || '',
+            maturity: val[4] || '',
+            yield: val[5] || val[val.length - 1] || ''
           });
         }
       }
       return rows;
     }
 
-    // اختيار الأجل وتحديث الجدول والأزرار
+    // اختيار الأجل
     function selectTerm(term, evt) {
       currentTerm = term;
       
@@ -261,24 +260,24 @@
       renderTable();
     }
 
-    // عرض بيانات الأجل المختار في الجدول
+    // عرض البيانات في الجدول (بدون تعقيد في التصفية)
     function renderTable() {
       const tbody = document.getElementById('table-body');
       
-      const filtered = allData.filter(d => {
-        if (currentTerm === 'other') {
-          return !['91', '182', '273', '364', '357'].includes(d.term);
-        }
-        return d.term === currentTerm;
-      }).reverse();
+      let filtered = allData.filter(d => d.rawTerm.includes(currentTerm));
+      
+      // إذا لم يجد مطابقة دقيقة للأجل، يعرض جميع البيانات الموجودة بدلاً من إظهار جدول فارغ
+      if (filtered.length === 0 && allData.length > 0) {
+        filtered = allData;
+      }
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة لهذا الأجل حتى الآن</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة حتى الآن</td></tr>';
         return;
       }
 
       let html = '';
-      filtered.forEach(row => {
+      filtered.reverse().forEach(row => {
         let yieldStr = row.yield;
         if (yieldStr && !yieldStr.includes('%')) yieldStr += '%';
 
