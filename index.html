@@ -199,8 +199,9 @@
   </div>
 
   <script>
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRC_O4MdWlDeEK1UKaq1-ym4anzduuXyDEVfjvmFKnzPU-jsluc1DSr1HZjMxwl-yzVeytBMXDWH3/pub?gid=0&single=true&output=csv";
-    
+    // رابط Google Visualization المباشر للحصول على CSV نقي بدون أكواد HTML/CSS
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRC_O4MdWlDeEK1UKaq1-ym4anzduuXyDEVfjvmFKnzPU-jsluc1DSr1HZjMxwl-yzVeytBMXDWH3/gviz/tq?tqx=out:csv";
+
     let allData = [];
     let currentTerm = '182';
 
@@ -219,13 +220,22 @@
     function parseCSV(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const rows = [];
-      
-      for (let i = 1; i < lines.length; i++) {
+
+      for (let i = 0; i < lines.length; i++) {
+        // تنظيف ومحي أي أطر أو أكواد غير مرغوب فيها
+        if (lines[i].includes('{') || lines[i].includes('font-size') || lines[i].includes('@media')) {
+          continue;
+        }
+
         const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
-        
-        if (val.length >= 5) {
+
+        if (val.length >= 5 && !val[0].toLowerCase().includes('timestamp') && !val[0].includes('الطابع')) {
+          const rawTermVal = val[1] || '';
+          const cleanTerm = rawTermVal.replace(/[^0-9]/g, '');
+
           rows.push({
-            term: val[1] || '',
+            rawTerm: rawTermVal,
+            term: cleanTerm || rawTermVal,
             session: val[2] || '',
             issue: val[3] || '',
             maturity: val[4] || '',
@@ -238,9 +248,9 @@
 
     function selectTerm(term, evt) {
       currentTerm = term;
-      
+
       document.querySelectorAll('.term-btn').forEach(btn => btn.classList.remove('active'));
-      if(evt && evt.target) {
+      if (evt && evt.target) {
         evt.target.classList.add('active');
       }
 
@@ -259,9 +269,18 @@
 
     function renderTable() {
       const tbody = document.getElementById('table-body');
-      
-      // عرض كافة البيانات المتاحة مباشرة بدون شروط معقدة للتأكد من ظهورها في الجدول
-      let filtered = allData;
+
+      let filtered = allData.filter(d => {
+        if (currentTerm === 'other') {
+          return !['91', '182', '273', '364', '357'].includes(d.term);
+        }
+        return d.term === currentTerm || d.rawTerm.includes(currentTerm);
+      });
+
+      // إذا لم يتطابق الأجل بدقة، اعرض الصفوف المسجلة مباشرة لمنع التوقف
+      if (filtered.length === 0 && allData.length > 0) {
+        filtered = allData;
+      }
 
       if (filtered.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة حتى الآن</td></tr>';
@@ -269,7 +288,7 @@
       }
 
       let html = '';
-      filtered.reverse().forEach(row => {
+      filtered.slice().reverse().forEach(row => {
         let yieldStr = row.yield;
         if (yieldStr && !yieldStr.includes('%')) yieldStr += '%';
 
