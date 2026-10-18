@@ -217,15 +217,22 @@
         });
     }
 
-    // تحويل CSV إلى مصفوفة
+    // تحويل CSV إلى مصفوفة مع معالجة الأرقام والمسافات
     function parseCSV(text) {
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const rows = [];
+      
       for (let i = 1; i < lines.length; i++) {
+        // تقسيم بحسب الفواصل مع الحفاظ على النصوص بين التنصيص
         const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
+        
         if (val.length >= 6) {
+          // استخراج الأرقام فقط من خانة الأجل (مثلاً: "182 يوم" تتحول لـ "182")
+          const cleanTermDigits = val[1].replace(/[^0-9]/g, '');
+          
           rows.push({
-            term: val[1],
+            rawTerm: val[1],
+            term: cleanTermDigits || val[1],
             session: val[2],
             issue: val[3],
             maturity: val[4],
@@ -263,7 +270,14 @@
     // عرض بيانات الأجل المختار
     function renderTable() {
       const tbody = document.getElementById('table-body');
-      const filtered = allData.filter(d => d.term === currentTerm).reverse();
+      
+      // التصفية المرنة: سواء تطابق الرقم مباشرة أو اشتمل على النص
+      const filtered = allData.filter(d => {
+        if (currentTerm === 'other') {
+          return !['91', '182', '273', '364', '357'].includes(d.term);
+        }
+        return d.term === currentTerm || d.rawTerm.includes(currentTerm);
+      }).reverse();
 
       if (filtered.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة لهذا الأجل حتى الآن</td></tr>';
