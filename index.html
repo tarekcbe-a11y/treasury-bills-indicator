@@ -204,7 +204,6 @@
     let allData = [];
     let currentTerm = '182';
 
-    // جلب البيانات من الشيت
     function fetchData() {
       fetch(csvUrl)
         .then(res => res.text())
@@ -217,28 +216,33 @@
         });
     }
 
-    // تحويل CSV
+    // فلترة دقيقة للنصوص واستبعاد الأكواد والأنماط الغريبة
     function parseCSV(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const rows = [];
       
-      for (let i = 1; i < lines.length; i++) {
+      for (let i = 0; i < lines.length; i++) {
+        // إذا كان السطر يحتوي على أكواد CSS أو HTML نرفضه فوراً
+        if (lines[i].includes('{') || lines[i].includes(' font-') || lines[i].includes('@media') || lines[i].includes('position:')) {
+          continue;
+        }
+
         const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
         
-        if (val.length >= 2) {
+        // التحقق من وجود بيانات تواريخ/أرقام في الصف
+        if (val.length >= 5 && !val[0].includes('Timestamp') && !val[0].includes('الطابع')) {
           rows.push({
             rawTerm: val[1] || '',
-            session: val[2] || val[1] || '',
+            session: val[2] || '',
             issue: val[3] || '',
             maturity: val[4] || '',
-            yield: val[5] || val[val.length - 1] || ''
+            yield: val[5] || ''
           });
         }
       }
       return rows;
     }
 
-    // اختيار الأجل
     function selectTerm(term, evt) {
       currentTerm = term;
       
@@ -260,13 +264,11 @@
       renderTable();
     }
 
-    // عرض البيانات في الجدول (بدون تعقيد في التصفية)
     function renderTable() {
       const tbody = document.getElementById('table-body');
       
       let filtered = allData.filter(d => d.rawTerm.includes(currentTerm));
       
-      // إذا لم يجد مطابقة دقيقة للأجل، يعرض جميع البيانات الموجودة بدلاً من إظهار جدول فارغ
       if (filtered.length === 0 && allData.length > 0) {
         filtered = allData;
       }
