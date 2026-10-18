@@ -217,22 +217,18 @@
         });
     }
 
-    // تحويل CSV إلى مصفوفة مع معالجة الأرقام والمسافات
+    // تحويل CSV وتحليل الأعمدة بدقة
     function parseCSV(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const rows = [];
       
       for (let i = 1; i < lines.length; i++) {
-        // تقسيم بحسب الفواصل مع الحفاظ على النصوص بين التنصيص
         const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
         
         if (val.length >= 6) {
-          // استخراج الأرقام فقط من خانة الأجل (مثلاً: "182 يوم" تتحول لـ "182")
-          const cleanTermDigits = val[1].replace(/[^0-9]/g, '');
-          
+          const cleanTerm = val[1].replace(/[^0-9]/g, '');
           rows.push({
-            rawTerm: val[1],
-            term: cleanTermDigits || val[1],
+            term: cleanTerm || val[1],
             session: val[2],
             issue: val[3],
             maturity: val[4],
@@ -247,13 +243,11 @@
     function selectTerm(term, evt) {
       currentTerm = term;
       
-      // تحديث حالة الأزرار
       document.querySelectorAll('.term-btn').forEach(btn => btn.classList.remove('active'));
       if(evt && evt.target) {
         evt.target.classList.add('active');
       }
 
-      // تحديث العنوان
       const titles = {
         '91': 'سجل نتائج أجل 91 يوم',
         '182': 'سجل نتائج أجل 182 يوم',
@@ -267,16 +261,15 @@
       renderTable();
     }
 
-    // عرض بيانات الأجل المختار
+    // عرض بيانات الأجل المختار في الجدول
     function renderTable() {
       const tbody = document.getElementById('table-body');
       
-      // التصفية المرنة: سواء تطابق الرقم مباشرة أو اشتمل على النص
       const filtered = allData.filter(d => {
         if (currentTerm === 'other') {
           return !['91', '182', '273', '364', '357'].includes(d.term);
         }
-        return d.term === currentTerm || d.rawTerm.includes(currentTerm);
+        return d.term === currentTerm;
       }).reverse();
 
       if (filtered.length === 0) {
