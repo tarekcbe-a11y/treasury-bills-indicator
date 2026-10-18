@@ -160,6 +160,7 @@
       color: #ff6b6b;
       padding: 12px 5px;
       font-size: 0.8rem;
+      white-space: normal;
     }
   </style>
 </head>
@@ -171,6 +172,7 @@
       نتائج عطاءات أذون الخزانة الرسمية (أحدث 52 أسبوعاً)
     </div>
 
+    <!-- أزرار اختيار الأجل الستة -->
     <div class="terms-grid">
       <button class="term-btn" onclick="selectTerm('91', this)">91 يوم</button>
       <button class="term-btn active" id="btn-182" onclick="selectTerm('182', this)">182 يوم</button>
@@ -213,15 +215,24 @@
   </div>
 
   <script>
-    // الجدول الجديد: جروب عملاء البنوك المصرية
+    /*
+      رابط النشر الجديد الذي أرسله الأستاذ طارق.
+      نطلب البيانات بصيغة CSV من الورقة الأولى gid=0.
+    */
     const csvUrl =
-      "https://docs.google.com/spreadsheets/d/1hXAQ5Z0tIFnrvcQyZ-0u9PQ5g5zMCiw5vLs-nVwG9T4/gviz/tq?tqx=out:csv&gid=0";
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp4jGbTtNydAA3tCX7s3W_xhVPnMCkgiR-xpCvCFoNbhcta59z3sWQPwcCaPoO3FTEEEazLDaeoOjZ/pub?gid=0&single=true&output=csv";
 
     let allData = [];
     let currentTerm = "182";
 
     async function fetchData() {
       const tbody = document.getElementById("table-body");
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="loading-message">جاري جلب البيانات...</td>
+        </tr>
+      `;
 
       try {
         const response = await fetch(csvUrl, {
@@ -234,29 +245,39 @@
 
         const csvText = await response.text();
 
-        // التحقق من أن الاستجابة بيانات CSV وليست صفحة HTML
-        if (csvText.trim().startsWith("<")) {
-          throw new Error("لم يرجع Google Sheets بيانات CSV");
+        // التأكد من أن الاستجابة بيانات وليست صفحة HTML
+        if (
+          csvText.trim().startsWith("<") ||
+          csvText.trim().startsWith("<!DOCTYPE")
+        ) {
+          throw new Error("استجابة Google ليست CSV");
         }
 
         const rows = parseCSV(csvText);
 
-        // الأعمدة:
-        // A الطابع الزمني
-        // B الأجل
-        // C تاريخ الجلسة
-        // D تاريخ الإصدار
-        // E تاريخ الاستحقاق
-        // F متوسط العائد
+        if (rows.length < 2) {
+          allData = [];
+          renderTable();
+          return;
+        }
+
+        /*
+          ترتيب أعمدة الجدول:
+          A: الطابع الزمني
+          B: الأجل
+          C: تاريخ الجلسة
+          D: تاريخ الإصدار
+          E: تاريخ الاستحقاق
+          F: متوسط العائد
+        */
         allData = rows.slice(1)
           .filter(row => row.length >= 6)
           .map(row => {
             const rawTerm = String(row[1] || "").trim();
-            const normalizedTerm = normalizeTerm(rawTerm);
 
             return {
               rawTerm: rawTerm,
-              term: normalizedTerm,
+              term: normalizeTerm(rawTerm),
               session: String(row[2] || "").trim(),
               issue: String(row[3] || "").trim(),
               maturity: String(row[4] || "").trim(),
@@ -268,29 +289,27 @@
         renderTable();
 
       } catch (error) {
-        console.error("خطأ في تحميل بيانات Google Sheets:", error);
+        console.error("خطأ في تحميل Google Sheets:", error);
 
         tbody.innerHTML = `
           <tr>
             <td colspan="4" class="error-message">
-              تعذر تحميل البيانات. تأكد من نشر الجدول وإتاحته للعرض.
+              تعذر تحميل البيانات. تأكد من نشر الجدول بصيغة CSV
+              وإتاحته للعرض العام.
             </td>
           </tr>
         `;
       }
     }
 
-    // استخراج عدد الأيام من صيغ مثل:
-    // 182، 182 يوم، 182 Days
+    // استخراج رقم الأجل حتى لو كان مكتوباً معه كلمة يوم
     function normalizeTerm(value) {
       const text = String(value || "").trim();
-
       const match = text.match(/\d+/);
-
       return match ? match[0] : text;
     }
 
-    // قراءة CSV مع دعم علامات الاقتباس والفواصل داخل الخلايا
+    // محلل CSV يدعم الفواصل داخل النصوص وعلامات الاقتباس
     function parseCSV(text) {
       const rows = [];
       let row = [];
@@ -312,7 +331,10 @@
         } else if (char === "," && !quoted) {
           row.push(value.trim());
           value = "";
-        } else if ((char === "\n" || char === "\r") && !quoted) {
+        } else if (
+          (char === "\n" || char === "\r") &&
+          !quoted
+        ) {
           if (char === "\r" && text[i + 1] === "\n") {
             i++;
           }
@@ -386,10 +408,8 @@
         return;
       }
 
-      // عرض أحدث البيانات أولاً حسب ترتيب الصفوف في الجدول
-      const latestFirst = filtered.slice().reverse();
-
-      tbody.innerHTML = latestFirst.map(row => {
+      // الأحدث أولاً: الصف الأخير في الجدول يظهر في البداية
+      tbody.innerHTML = filtered.slice().reverse().map(row => {
         let yieldValue = escapeHTML(row.yield);
 
         if (yieldValue && !yieldValue.includes("%")) {
@@ -407,7 +427,7 @@
       }).join("");
     }
 
-    // حماية النصوص القادمة من الجدول عند عرضها داخل HTML
+    // حماية عرض النصوص القادمة من الجدول
     function escapeHTML(value) {
       return String(value || "").replace(/[&<>"']/g, char => ({
         "&": "&amp;",
@@ -418,7 +438,9 @@
       })[char]);
     }
 
+    // تشغيل تحميل البيانات عند فتح الموقع
     fetchData();
   </script>
 </body>
 </html>
+
