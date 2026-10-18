@@ -199,7 +199,8 @@
   </div>
 
   <script>
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4a-R29quJvLHLEtE3D_jFqxDyxN5VZclwEx9gDi5LDHkOKJw_vlo7nrplDsGpwYHZIfftTTWN_I0/pub?output=csv";
+    // الرابط الجديد المنشور بصيغة CSV الصحيحة
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRC_O4MdWlDeEK1UKaq1-ym4anzduuXyDEVfjvmFKnzPU-jsluc1DSr1HZjMxwl-yzVeytBMXDWH3/pub?gid=0&single=true&output=csv";
     
     let allData = [];
     let currentTerm = '182';
@@ -216,27 +217,21 @@
         });
     }
 
-    // فلترة دقيقة للنصوص واستبعاد الأكواد والأنماط الغريبة
     function parseCSV(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const rows = [];
       
-      for (let i = 0; i < lines.length; i++) {
-        // إذا كان السطر يحتوي على أكواد CSS أو HTML نرفضه فوراً
-        if (lines[i].includes('{') || lines[i].includes(' font-') || lines[i].includes('@media') || lines[i].includes('position:')) {
-          continue;
-        }
-
+      for (let i = 1; i < lines.length; i++) {
         const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
         
-        // التحقق من وجود بيانات تواريخ/أرقام في الصف
-        if (val.length >= 5 && !val[0].includes('Timestamp') && !val[0].includes('الطابع')) {
+        if (val.length >= 6) {
+          const cleanTerm = val[1].replace(/[^0-9]/g, '');
           rows.push({
-            rawTerm: val[1] || '',
-            session: val[2] || '',
-            issue: val[3] || '',
-            maturity: val[4] || '',
-            yield: val[5] || ''
+            term: cleanTerm || val[1],
+            session: val[2],
+            issue: val[3],
+            maturity: val[4],
+            yield: val[5]
           });
         }
       }
@@ -267,14 +262,15 @@
     function renderTable() {
       const tbody = document.getElementById('table-body');
       
-      let filtered = allData.filter(d => d.rawTerm.includes(currentTerm));
-      
-      if (filtered.length === 0 && allData.length > 0) {
-        filtered = allData;
-      }
+      let filtered = allData.filter(d => {
+        if (currentTerm === 'other') {
+          return !['91', '182', '273', '364', '357'].includes(d.term);
+        }
+        return d.term === currentTerm;
+      });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة حتى الآن</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة لهذا الأجل حتى الآن</td></tr>';
         return;
       }
 
