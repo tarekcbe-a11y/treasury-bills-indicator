@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مؤشر أذون الخزانة | جروب عملاء البنوك المصرية</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     * {
       box-sizing: border-box;
@@ -66,7 +68,8 @@
       transition: all 0.2s ease;
     }
 
-    .term-btn.active, .term-btn:hover {
+    .term-btn.active,
+    .term-btn:hover {
       background-color: #d4af37;
       color: #000;
     }
@@ -86,7 +89,7 @@
     .table-box {
       border: 1px solid #d4af37;
       border-radius: 12px;
-      overflow: hidden;
+      overflow: auto;
       margin-bottom: 20px;
       background-color: #050505;
       min-height: 150px;
@@ -104,12 +107,14 @@
       color: #fff;
       padding: 10px 4px;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     td {
       padding: 10px 4px;
       color: #fff;
       border-top: 1px solid #222;
+      white-space: nowrap;
     }
 
     td.session-date {
@@ -146,28 +151,39 @@
       font-size: 0.75rem;
       margin-top: 2px;
     }
+
+    .loading-message {
+      color: #888;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      padding: 12px 5px;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
-<body>
 
+<body>
   <div class="app-card">
     <div class="main-title">مؤشر أذون الخزانة</div>
-    <div class="sub-title">نتائج عطاءات أذون الخزانة الرسمية (أحدث 52 أسبوعاً)</div>
-
-    <!-- أزرار اختيار الأجل -->
-    <div class="terms-grid">
-      <button class="term-btn" onclick="selectTerm('91', event)">91 يوم</button>
-      <button class="term-btn active" id="btn-182" onclick="selectTerm('182', event)">182 يوم</button>
-      <button class="term-btn" onclick="selectTerm('273', event)">273 يوم</button>
-      <button class="term-btn" onclick="selectTerm('364', event)">364 يوم</button>
-      <button class="term-btn" onclick="selectTerm('357', event)">357 يوم</button>
-      <button class="term-btn" onclick="selectTerm('other', event)">مدد أخرى</button>
+    <div class="sub-title">
+      نتائج عطاءات أذون الخزانة الرسمية (أحدث 52 أسبوعاً)
     </div>
 
-    <!-- عنوان الأجل المحدد -->
-    <div class="section-title" id="section-header">سجل نتائج أجل 182 يوم</div>
+    <div class="terms-grid">
+      <button class="term-btn" onclick="selectTerm('91', this)">91 يوم</button>
+      <button class="term-btn active" id="btn-182" onclick="selectTerm('182', this)">182 يوم</button>
+      <button class="term-btn" onclick="selectTerm('273', this)">273 يوم</button>
+      <button class="term-btn" onclick="selectTerm('364', this)">364 يوم</button>
+      <button class="term-btn" onclick="selectTerm('357', this)">357 يوم</button>
+      <button class="term-btn" onclick="selectTerm('other', this)">مدد أخرى</button>
+    </div>
 
-    <!-- جدول البيانات -->
+    <div class="section-title" id="section-header">
+      سجل نتائج أجل 182 يوم
+    </div>
+
     <div class="table-box">
       <table>
         <thead>
@@ -180,18 +196,16 @@
         </thead>
         <tbody id="table-body">
           <tr>
-            <td colspan="4" style="color: #888;">جاري جلب البيانات...</td>
+            <td colspan="4" class="loading-message">جاري جلب البيانات...</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- مساحة الإعلان -->
     <div class="ad-space">
       مساحة إعلان (Google AdMob 320x50)
     </div>
 
-    <!-- اسم الجروب وحقوق التطوير -->
     <div class="footer-brand">
       🛡️ جروب عملاء البنوك المصرية
     </div>
@@ -199,109 +213,209 @@
   </div>
 
   <script>
-    // رابط Google Visualization المباشر للحصول على CSV نقي بدون أكواد HTML/CSS
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRC_O4MdWlDeEK1UKaq1-ym4anzduuXyDEVfjvmFKnzPU-jsluc1DSr1HZjMxwl-yzVeytBMXDWH3/gviz/tq?tqx=out:csv";
+    // الجدول الجديد: جروب عملاء البنوك المصرية
+    const csvUrl =
+      "https://docs.google.com/spreadsheets/d/1hXAQ5Z0tIFnrvcQyZ-0u9PQ5g5zMCiw5vLs-nVwG9T4/gviz/tq?tqx=out:csv&gid=0";
 
     let allData = [];
-    let currentTerm = '182';
+    let currentTerm = "182";
 
-    function fetchData() {
-      fetch(csvUrl)
-        .then(res => res.text())
-        .then(csvText => {
-          allData = parseCSV(csvText);
-          renderTable();
-        })
-        .catch(err => {
-          document.getElementById('table-body').innerHTML = '<tr><td colspan="4" style="color:red;">خطأ في الاتصال بالبيانات</td></tr>';
+    async function fetchData() {
+      const tbody = document.getElementById("table-body");
+
+      try {
+        const response = await fetch(csvUrl, {
+          cache: "no-store"
         });
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+
+        const csvText = await response.text();
+
+        // التحقق من أن الاستجابة بيانات CSV وليست صفحة HTML
+        if (csvText.trim().startsWith("<")) {
+          throw new Error("لم يرجع Google Sheets بيانات CSV");
+        }
+
+        const rows = parseCSV(csvText);
+
+        // الأعمدة:
+        // A الطابع الزمني
+        // B الأجل
+        // C تاريخ الجلسة
+        // D تاريخ الإصدار
+        // E تاريخ الاستحقاق
+        // F متوسط العائد
+        allData = rows.slice(1)
+          .filter(row => row.length >= 6)
+          .map(row => {
+            const rawTerm = String(row[1] || "").trim();
+            const normalizedTerm = normalizeTerm(rawTerm);
+
+            return {
+              rawTerm: rawTerm,
+              term: normalizedTerm,
+              session: String(row[2] || "").trim(),
+              issue: String(row[3] || "").trim(),
+              maturity: String(row[4] || "").trim(),
+              yield: String(row[5] || "").trim()
+            };
+          })
+          .filter(row => row.term && row.yield);
+
+        renderTable();
+
+      } catch (error) {
+        console.error("خطأ في تحميل بيانات Google Sheets:", error);
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="error-message">
+              تعذر تحميل البيانات. تأكد من نشر الجدول وإتاحته للعرض.
+            </td>
+          </tr>
+        `;
+      }
     }
 
+    // استخراج عدد الأيام من صيغ مثل:
+    // 182، 182 يوم، 182 Days
+    function normalizeTerm(value) {
+      const text = String(value || "").trim();
+
+      const match = text.match(/\d+/);
+
+      return match ? match[0] : text;
+    }
+
+    // قراءة CSV مع دعم علامات الاقتباس والفواصل داخل الخلايا
     function parseCSV(text) {
-      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const rows = [];
+      let row = [];
+      let value = "";
+      let quoted = false;
 
-      for (let i = 0; i < lines.length; i++) {
-        // تنظيف ومحي أي أطر أو أكواد غير مرغوب فيها
-        if (lines[i].includes('{') || lines[i].includes('font-size') || lines[i].includes('@media')) {
-          continue;
-        }
+      text = text.replace(/^\uFEFF/, "");
 
-        const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
 
-        if (val.length >= 5 && !val[0].toLowerCase().includes('timestamp') && !val[0].includes('الطابع')) {
-          const rawTermVal = val[1] || '';
-          const cleanTerm = rawTermVal.replace(/[^0-9]/g, '');
+        if (char === '"') {
+          if (quoted && text[i + 1] === '"') {
+            value += '"';
+            i++;
+          } else {
+            quoted = !quoted;
+          }
+        } else if (char === "," && !quoted) {
+          row.push(value.trim());
+          value = "";
+        } else if ((char === "\n" || char === "\r") && !quoted) {
+          if (char === "\r" && text[i + 1] === "\n") {
+            i++;
+          }
 
-          rows.push({
-            rawTerm: rawTermVal,
-            term: cleanTerm || rawTermVal,
-            session: val[2] || '',
-            issue: val[3] || '',
-            maturity: val[4] || '',
-            yield: val[5] || ''
-          });
+          row.push(value.trim());
+
+          if (row.some(cell => cell !== "")) {
+            rows.push(row);
+          }
+
+          row = [];
+          value = "";
+        } else {
+          value += char;
         }
       }
+
+      if (value !== "" || row.length > 0) {
+        row.push(value.trim());
+        rows.push(row);
+      }
+
       return rows;
     }
 
-    function selectTerm(term, evt) {
+    function selectTerm(term, button) {
       currentTerm = term;
 
-      document.querySelectorAll('.term-btn').forEach(btn => btn.classList.remove('active'));
-      if (evt && evt.target) {
-        evt.target.classList.add('active');
+      document.querySelectorAll(".term-btn").forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      if (button) {
+        button.classList.add("active");
       }
 
       const titles = {
-        '91': 'سجل نتائج أجل 91 يوم',
-        '182': 'سجل نتائج أجل 182 يوم',
-        '273': 'سجل نتائج أجل 273 يوم',
-        '364': 'سجل نتائج أجل 364 يوم',
-        '357': 'سجل نتائج أجل 357 يوم',
-        'other': 'سجل نتائج المدد الأخرى'
+        "91": "سجل نتائج أجل 91 يوم",
+        "182": "سجل نتائج أجل 182 يوم",
+        "273": "سجل نتائج أجل 273 يوم",
+        "364": "سجل نتائج أجل 364 يوم",
+        "357": "سجل نتائج أجل 357 يوم",
+        "other": "سجل نتائج المدد الأخرى"
       };
-      document.getElementById('section-header').innerText = titles[term] || `سجل نتائج أجل ${term} يوم`;
+
+      document.getElementById("section-header").innerText =
+        titles[term] || `سجل نتائج أجل ${term} يوم`;
 
       renderTable();
     }
 
     function renderTable() {
-      const tbody = document.getElementById('table-body');
+      const tbody = document.getElementById("table-body");
 
-      let filtered = allData.filter(d => {
-        if (currentTerm === 'other') {
-          return !['91', '182', '273', '364', '357'].includes(d.term);
+      const filtered = allData.filter(row => {
+        if (currentTerm === "other") {
+          return !["91", "182", "273", "364", "357"].includes(row.term);
         }
-        return d.term === currentTerm || d.rawTerm.includes(currentTerm);
+
+        return row.term === currentTerm;
       });
 
-      // إذا لم يتطابق الأجل بدقة، اعرض الصفوف المسجلة مباشرة لمنع التوقف
-      if (filtered.length === 0 && allData.length > 0) {
-        filtered = allData;
-      }
-
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة حتى الآن</td></tr>';
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="loading-message">
+              لا توجد نتائج مسجلة لهذا الأجل حتى الآن
+            </td>
+          </tr>
+        `;
         return;
       }
 
-      let html = '';
-      filtered.slice().reverse().forEach(row => {
-        let yieldStr = row.yield;
-        if (yieldStr && !yieldStr.includes('%')) yieldStr += '%';
+      // عرض أحدث البيانات أولاً حسب ترتيب الصفوف في الجدول
+      const latestFirst = filtered.slice().reverse();
 
-        html += `
+      tbody.innerHTML = latestFirst.map(row => {
+        let yieldValue = escapeHTML(row.yield);
+
+        if (yieldValue && !yieldValue.includes("%")) {
+          yieldValue += "%";
+        }
+
+        return `
           <tr>
-            <td class="session-date">${row.session || ''}</td>
-            <td>${row.issue || ''}</td>
-            <td>${row.maturity || ''}</td>
-            <td class="yield-val">${yieldStr || ''}</td>
+            <td class="session-date">${escapeHTML(row.session)}</td>
+            <td>${escapeHTML(row.issue)}</td>
+            <td>${escapeHTML(row.maturity)}</td>
+            <td class="yield-val">${yieldValue}</td>
           </tr>
         `;
-      });
-      tbody.innerHTML = html;
+      }).join("");
+    }
+
+    // حماية النصوص القادمة من الجدول عند عرضها داخل HTML
+    function escapeHTML(value) {
+      return String(value || "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
     }
 
     fetchData();
