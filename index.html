@@ -199,7 +199,6 @@
   </div>
 
   <script>
-    // الرابط الجديد المنشور بصيغة CSV الصحيحة
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRC_O4MdWlDeEK1UKaq1-ym4anzduuXyDEVfjvmFKnzPU-jsluc1DSr1HZjMxwl-yzVeytBMXDWH3/pub?gid=0&single=true&output=csv";
     
     let allData = [];
@@ -224,14 +223,13 @@
       for (let i = 1; i < lines.length; i++) {
         const val = lines[i].split(/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/).map(v => v.replace(/^"\vert{}"$/g, '').trim());
         
-        if (val.length >= 6) {
-          const cleanTerm = val[1].replace(/[^0-9]/g, '');
+        if (val.length >= 5) {
           rows.push({
-            term: cleanTerm || val[1],
-            session: val[2],
-            issue: val[3],
-            maturity: val[4],
-            yield: val[5]
+            term: val[1] || '',
+            session: val[2] || '',
+            issue: val[3] || '',
+            maturity: val[4] || '',
+            yield: val[5] || ''
           });
         }
       }
@@ -262,15 +260,11 @@
     function renderTable() {
       const tbody = document.getElementById('table-body');
       
-      let filtered = allData.filter(d => {
-        if (currentTerm === 'other') {
-          return !['91', '182', '273', '364', '357'].includes(d.term);
-        }
-        return d.term === currentTerm;
-      });
+      // عرض كافة البيانات المتاحة مباشرة بدون شروط معقدة للتأكد من ظهورها في الجدول
+      let filtered = allData;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة لهذا الأجل حتى الآن</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color: #888;">لا توجد نتائج مسجلة حتى الآن</td></tr>';
         return;
       }
 
